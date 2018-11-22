@@ -1,4 +1,5 @@
 import tensorflow as tf
+import time
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -23,6 +24,7 @@ queue = Queue()
 
 def train_model(item):
     # try:
+    starttime = time.time()
     sliding_encoder = item["sliding_encoder"]
     sliding_decoder = item["sliding_decoder"]
     sliding_inference = item["sliding_inference"]
@@ -42,7 +44,7 @@ def train_model(item):
         learning_rate = learning_rate, epochs_encoder_decoder = epochs_encoder_decoder,
         epochs_inference = epochs_inference,
         input_dim = input_dim, num_units_inference = num_units_inference, patience = patience, 
-        number_out_decoder = number_out_decoder, dropout_rate = dropout_rate)
+        number_out_decoder = number_out_decoder, dropout_rate = dropout_rate, interval_arr = interval_arr)
     error = model.fit()
     name_LSTM = ""
     for i in range(len(num_units_LSTM)):
@@ -59,14 +61,12 @@ def train_model(item):
         else:
             name_inference += str(num_units_inference[i]) +'_'
     file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+ '-' + str(optimizer) + '-' + str(input_dim) + '-' + name_inference +'-'+str(number_out_decoder) +'-'+str(dropout_rate)
-<<<<<<< HEAD
             
-    summary = open("results/fuzzy/multivariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver3.csv",'a+')
+    summary = open("results/multivariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver3.csv",'a+')
     summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
-=======
-    summary = open("results/fuzzy/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver6.csv",'a+')
->>>>>>> 21cf30d6d41df1dcca8a33a021609f350a88623f
     print (error)
+    print (time.time()- starttime)
+     
     # except:
     #     traceback.print_stack()
 # producer
@@ -87,39 +87,50 @@ fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
 fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
 fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
 fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
-<<<<<<< HEAD
-dataset_original = [fuzzied_cpu,fuzzied_mem]
+dataset_original = [cpu,mem]
 prediction_data = [cpu]
 external_feature = [cpu]
-=======
-dataset_original = [fuzzied_mem,fuzzied_cpu]
-prediction_data = [mem]
-external_feature = [mem]
->>>>>>> 21cf30d6d41df1dcca8a33a021609f350a88623f
-
 
 train_size = int(0.6 * len(cpu))
 # print (train_size)
 valid_size = int(0.2 * len(cpu))
 
+num_interval = 500
+
+
+min_cpu = np.amin(cpu)
+min_mem = np.amin(mem)
+min_disk_io = np.amin(disk_io_time)
+min_disk_space = np.amin(disk_space)
+
+max_cpu = np.amax(cpu)
+max_mem = np.amax(mem)
+max_disk_io = np.amax(disk_io_time)
+max_disk_space = np.amax(disk_space)
+
+interval_cpu = (max_cpu - min_cpu)
+interval_mem = (max_mem - min_mem)
+interval_disk_io = (max_disk_io - min_disk_io)
+interval_disk_space = (max_disk_space - min_disk_space)
+interval_arr = [interval_cpu, interval_mem, interval_disk_io, interval_disk_space]
 
 sliding_encoders = [18]
-sliding_decoders = [3]
-sliding_inferences = [8]
-batch_size_arr = [16]
+sliding_decoders = [2,3,4,5]
+sliding_inferences = [8,9,10]
+batch_size_arr = [4]
 input_dim = [len(dataset_original)]
-num_units_LSTM_arr = [[4]]
-dropout_rate = [0.7]
+num_units_LSTM_arr = [[16,4]]
+dropout_rate = [0.9, 0.95]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [1]
+activation= [1,3]
 # 1: momentum
 # 2: adam
 # 3: rmsprop
 
-optimizers = [3]
+optimizers = [2,3]
 
 learning_rate = 0.005
 epochs_encoder_decoder = 2000
@@ -128,7 +139,7 @@ patience = 40  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 
 num_units_inference_arr = [[16]]
-number_out_decoder = [1]
+number_out_decoder = [1,2]
 n_output_encoder_decoder = 1
 param_grid = {
         'sliding_encoder': sliding_encoders,
@@ -152,12 +163,10 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-<<<<<<< HEAD
-    summary = open("results/fuzzy/multivariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver3.csv",'a+')
-=======
->>>>>>> 21cf30d6d41df1dcca8a33a021609f350a88623f
+
+    summary = open("results/multivariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver3.csv",'a+')
     summary.write("model,MAE,RMSE\n")
- 
+    
     pool = Pool(10)
     pool.map(train_model, list(queue.queue))
     pool.close()

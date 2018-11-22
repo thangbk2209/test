@@ -37,15 +37,23 @@ disk_space = df['disk_space'].values.reshape(-1,1)
 # print (arr)
 # for i, file in enumerate(arr):
 i = 0
-max_cpu = 56.86312103270001
-min_cpu = 0.0
-# file = '18-8-8-8-[16, 4]-1-2-[16]-2-2.csv'
-file = '18-4-9-16-16_4-1-2-1-8-1-0.9.csv'
+max_mem = np.amax(mem)
+min_mem = np.amin(mem)
+max_cpu = np.amax(cpu)
+min_cpu = np.amin(cpu)
 
+# file = '18-8-8-8-[16, 4]-1-2-[16]-2-2.csv'
+file = '18-2-8-4-16_4-1-2-2-16-2-0.95.csv'
+
+# def plot_mean_and_CI(mean, lb, ub, color_mean=None, color_shading=None):
+    # plot the shaded range of the confidence intervals
+    
 print (str(file))
 # file_path = 'testANN.csv'
-file_path = 'results/fuzzy/univariate/mem/5minutes/bnn_uber/prediction/'+str(file)
-Pred_df = read_csv(file_path, header=None, index_col=False, engine='python')
+file_prediction_path = 'results/fuzzy/multivariate/cpu/5minutes/bnn_multivariate_uber_ver5/prediction/'+str(file)
+file_uncertainty_path = 'results/fuzzy/multivariate/cpu/5minutes/bnn_multivariate_uber_ver5/uncertainty/'+str(file)
+Pred_df = read_csv(file_prediction_path, header=None, index_col=False, engine='python')
+uncertainty_df = read_csv(file_prediction_path, header=None, index_col=False, engine='python')
 file_name = file.split('.')[0]
 # error_df = read_csv('results/cpu/5minutes/bnn_multivariate_uber/prediction/' +file, header=None, index_col=False, engine='python')
 
@@ -55,6 +63,7 @@ train_size = int(len(RealDataset)*0.8)
 test_size = len(RealDataset) - train_size
 print (RealDataset)
 Pred = Pred_df.values
+uncertainty = uncertainty_df.values
 # Pred  = Pred * (max_cpu - min_cpu) + min_cpu
 
 
@@ -68,14 +77,32 @@ print (len(realTestData))
 # lol
 realTestData = realTestData.reshape(realTestData.shape[0])
 Pred = Pred.reshape(Pred.shape[0])
+uncertainty = uncertainty.reshape(uncertainty.shape[0])
+# ub = Pred + uncertainty * (max_cpu - min_cpu)/4
+# ib = Pred - uncertainty * (max_cpu - min_cpu)/4
+ub = Pred + uncertainty
+ib = Pred - uncertainty
+print (ub)
+# lol
+# plot_mean_and_CI(realTestData, ub, ib, color_mean='b', color_shading='b')
+
 print(realTestData)
 print (realTestData.shape)
 print (Pred.shape)
 MAE_err = MAE(Pred,realTestData)
-realTestData = realTestData[200:500]
-Pred = Pred[200:500]
+# realTestData = realTestData[200:300]
+# Pred = Pred[200:300]
+# ub = ub[200:300]
+# ib = ib[200:300]
 # lol
 # file_path = '/'
+plt.fill_between(range(realTestData.shape[0]), ub, ib,
+                    alpha=.5)
+# plot the mean on top
+plt.plot(realTestData)
+plt.show()
+plt.savefig('results/images/uncer_fuzzy_multi_bnn_mem.png')
+# lol
 
 print (MAE_err)
 file_path_save = 'results/images'

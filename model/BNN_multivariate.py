@@ -285,7 +285,7 @@ class Model:
             outputs = []
             MSE = []
             error_model = []
-            B = 20
+            B = 50
             for i in range(B):
                 
                 MAEi = sess.run(MAE, feed_dict={x1:self.test_x_encoder,x3:self.test_x_inference, y2: self.test_y_inference})
@@ -311,7 +311,7 @@ class Model:
                 errori = []
                 for t in range(B):
                     outk += outputs[t][k][0]/B
-                    errork += np.square(self.test_y_inference[k] - outputs[t][k][0])
+                    errork += np.square(self.test_y_inference[k] - outputs[t][k][0])/B
                 errori.append(errork)
                 y_prei.append(outk)
                 y_pre.append(y_prei)
@@ -335,8 +335,8 @@ class Model:
                     name_inference += str(self.num_units_inference[i])
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
-            folder_to_save_result = 'results/fuzzy/multivariate/cpu/5minutes/bnn_multivariate_ver4/'
-            file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+'-'+str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference+'-'+str(self.dropout_rate)
+            folder_to_save_result = 'results/multivariate/cpu/5minutes/bnn_multivariate_ver8/'
+            file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+'-'+str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference+'-'+str(self.dropout_rate) +'-' + str(self.number_out_decoder)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'

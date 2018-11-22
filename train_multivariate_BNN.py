@@ -55,8 +55,8 @@ def train_model(item):
             name_inference += str(num_units_inference[i])
         else:
             name_inference += str(num_units_inference[i]) +'_'
-    file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+'-'+str(optimizer) + '-' + str(input_dim) + '-' + name_inference+'-'+str(dropout_rate)
-    summary = open("results/fuzzy/multivariate/cpu/5minutes/evaluate_fuzzy_bnn_multivariate_ver4.csv",'a+')
+    file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+'-'+str(optimizer) + '-' + str(input_dim) + '-' + name_inference+'-'+str(dropout_rate)+ '-' + str(number_out_decoder)
+    summary = open("results/multivariate/cpu/5minutes/evaluate_bnn_multivariate_ver8.csv",'a+')
     summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
 # producer
@@ -77,7 +77,7 @@ fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
 fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
 fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
 # mem,cpu
-dataset_original = [fuzzied_cpu,fuzzied_mem]
+dataset_original = [cpu,mem]
 prediction_data = [cpu]
 
 external_feature = [cpu]
@@ -87,21 +87,21 @@ train_size = int(0.6 * len(cpu))
 valid_size = int(0.2 * len(cpu))
 
 
-sliding_encoders = [18,24]
-sliding_decoders = [2,3,4]
-sliding_inferences = [8,9,10]
-batch_size_arr = [4]
+sliding_encoders = [24]
+sliding_decoders = [4]
+sliding_inferences = [9]
+batch_size_arr = [8]
 num_units_LSTM_arr = [[16,4]]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
 #                                              - 4 is elu
-activation= [1,3]
+activation= [1]
 # 1: momentum
 # 2: adam
 # 3: rmsprop
 
-optimizers = [2,3]
+optimizers = [3]
 
 learning_rate = 0.005
 epochs_encoder_decoder = 2000
@@ -110,7 +110,7 @@ patience = 20  #number of epoch checking for early stopping
 # num_units_LSTM_arr - array number units lstm for encoder and decoder
 input_dim = [len(dataset_original)]
 num_units_inference_arr = [[16]]
-dropout_rate = [0.5,0.75,0.9]
+dropout_rate = [0.5]
 number_out_decoder = [1,2]
 n_output_encoder_decoder = 1
 param_grid = {
@@ -135,7 +135,7 @@ for item in list(ParameterGrid(param_grid)) :
     queue.put_nowait(item)
 # Consumer
 if __name__ == '__main__':
-    summary = open("results/fuzzy/multivariate/cpu/5minutes/evaluate_fuzzy_bnn_multivariate_ver4.csv",'a+')
+    summary = open("results/fuzzy/multivariate/cpu/5minutes/evaluate_bnn_multivariate_ver8.csv",'a+')
     summary.write("model,MAE,RMSE\n")
  
     pool = Pool(10)

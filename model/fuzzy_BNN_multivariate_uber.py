@@ -17,7 +17,7 @@ class Model:
     def __init__(self, original_data = None, prediction_data = None, external_feature = None, train_size = None, valid_size = None, 
     sliding_encoder = None, sliding_decoder = None, sliding_inference = None,
     batch_size = None, num_units_LSTM = None, num_layers = None,
-    activation = None, optimizer = None,
+    activation = None, optimizer = None, interval_arr = None,
     # n_input = None, n_output = None,
     learning_rate = None, epochs_encoder_decoder = None, epochs_inference = None, 
     input_dim = None, num_units_inference = None, patience = None, number_out_decoder = 1, dropout_rate = 0.8):
@@ -44,6 +44,7 @@ class Model:
         self.patience = patience
         self.number_out_decoder = number_out_decoder
         self.dropout_rate = dropout_rate
+        self.interval_arr = interval_arr
     def preprocessing_data(self):
         timeseries = FuzzyMultivariateTimeseriesBNNUber(self.original_data, self.prediction_data, self.external_feature, self.train_size, self.valid_size, self.sliding_encoder, self.sliding_decoder, self.sliding_inference, self.input_dim,self.number_out_decoder)
         self.train_x_encoder, self.valid_x_encoder, self.test_x_encoder, self.train_x_decoder, self.valid_x_decoder, self.test_x_decoder, self.train_y_decoder, self.valid_y_decoder, self.test_y_decoder, self.min_y, self.max_y, self.train_x_inference, self.valid_x_inference, self.test_x_inference, self.train_y_inference, self.valid_y_inference, self.test_y_inference = timeseries.prepare_data()
@@ -177,8 +178,9 @@ class Model:
                 outputs_decoder, new_state_decoder=tf.nn.dynamic_rnn(decoder, x2,dtype="float32", initial_state=new_state_encoder)
             
             prediction = outputs_decoder[:,:,-1]
+            
             loss_encoder_decoder = tf.reduce_mean(tf.square(y1-prediction))
-            optimizer_encoder_decoder = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(loss_encoder_decoder)
+            optimizer_encoder_decoder = optimizer.minimize(loss_encoder_decoder)
         else:
             print ("=======self.number_out_decoder == 2=============")
             y11 = tf.placeholder("float", [None, self.sliding_decoder])
@@ -198,7 +200,7 @@ class Model:
             prediction1 = outputs_decoder1[:,:,-1]
             prediction2 = outputs_decoder2[:,:,-1]
             loss_encoder_decoder = tf.reduce_mean(tf.square(y11-prediction1) + tf.square(y12-prediction2))
-            optimizer_encoder_decoder = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(loss_encoder_decoder)
+            optimizer_encoder_decoder = tf.train.AdvamOptimizer(learning_rate = 0.001).minimize(loss_encoder_decoder)
         # out_weights=tf.Variable(tf.random_normal([int(self.sliding_decoder*len(self.original_data)/self.input_dim), self.n_output_encoder_decoder]))
         # out_bias=tf.Variable(tf.random_normal([self.n_output_encoder_decoder]))
         # else:
@@ -271,6 +273,7 @@ class Model:
                         if(i == total_batch -1):
                             a = sess.run(new_state_encoder,feed_dict={x1: batch_xs_encoder})
                     # Display logs per epoch step
+
                     print ("Epoch:", '%04d' % (epoch+1),"cost=", "{:.9f}".format(avg_cost))
                     cost_train_encoder_decoder_set.append(avg_cost)
                     val_cost = sess.run(loss_encoder_decoder, feed_dict={x1:self.valid_x_encoder,x2:self.valid_x_decoder, y1: self.valid_y_decoder})
@@ -281,6 +284,7 @@ class Model:
                             break
                     print ("Epoch encoder-decoder finished")
                     print ('time for epoch encoder-decoder: ', epoch + 1 , time.time()-start_time)
+                # print (sess.run(prediction,feed_dict={x1: self.train_x_encoder,x2: self.train_x_decoder}))
                 print ('training encoder-decoder ok!!!')
             else:
                 for epoch in range(self.epochs_encoder_decoder):
@@ -370,7 +374,7 @@ class Model:
                 errori = []
                 for t in range(B):
                     outk += outputs[t][k][0]/B
-                    errork += np.square(self.test_y_inference[k] - outputs[t][k][0])
+                    errork += np.square(self.test_y_inference[k] - outputs[t][k][0])/B
                 errori.append(errork)
                 y_prei.append(outk)
                 y_pre.append(y_prei)
@@ -401,7 +405,7 @@ class Model:
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
 
-            folder_to_save_result = 'results/fuzzy/multivariate/mem/5minutes/bnn_multivariate_uber_ver6/'
+            folder_to_save_result = 'results/multivariate/cpu/5minutes/bnn_multivariate_uber_ver3/'
 
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'

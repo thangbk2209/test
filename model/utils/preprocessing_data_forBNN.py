@@ -528,12 +528,14 @@ class FuzzyMultivariateTimeseriesBNNUber:
         self.input_dim = input_dim 
         self.number_out_decoder = number_out_decoder
     def prepare_data(self):
+        self.num_interval = 500
         # check input
         # print ("==============check input=============")
         # print (self.original_data[0])
         # print (self.external_feature[0])
         # lol117
         self.scaled_data, self.min_arr, self.max_arr = self.scale_timeseries(self.original_data)
+        
         # print ("==============check scale data============")
         # print (self.scaled_data)
         # print (self.min_arr)

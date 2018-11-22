@@ -86,7 +86,7 @@ class Model:
                                          num_units[i],
                                          activation = activation,
                                          name = 'layer'+str(i))
-            drop_rate = 1 - self.dropout_rate
+            drop_rate = self.dropout_rate
             prev_layer = tf.layers.dropout(prev_layer , rate = drop_rate)
         
         prediction = tf.layers.dense(inputs=prev_layer,
@@ -361,7 +361,7 @@ class Model:
                 errori = []
                 for t in range(B):
                     outk += outputs[t][k][0]/B
-                    errork += np.square(self.test_y_inference[k] - outputs[t][k][0])
+                    errork += np.square(self.test_y_inference[k] - outputs[t][k][0])/B
                 errori.append(errork)
                 y_prei.append(outk)
                 y_pre.append(y_prei)
@@ -391,13 +391,13 @@ class Model:
                     name_inference += str(self.num_units_inference[i])
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
-            folder_to_save_result = 'results/multivariate/cpu/5minutes/bnn_multivariate_uber_ver2/'
+            folder_to_save_result = 'results/multivariate/cpu/5minutes/bnn_multivariate_uber_ver5/'
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
             prediction_file = folder_to_save_result + 'prediction/' + file_name + '.csv'
             vector_state_file = folder_to_save_result + 'vector_representation/' + file_name + '.csv'
             uncertainty_file = folder_to_save_result + 'uncertainty/' + file_name + '.csv'
-            save_path = saver.save(sess, 'results/multivariate/cpu/5minutes/bnn_multivariate_uber_ver2/model_saved/' +  file_name+'/model')
+            save_path = saver.save(sess, folder_to_save_result + 'model_saved/' +  file_name + '/model')
             
             plt.plot(cost_train_inference_set)
             plt.plot(cost_valid_inference_set)
