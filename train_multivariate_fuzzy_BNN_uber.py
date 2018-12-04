@@ -62,7 +62,7 @@ def train_model(item):
             name_inference += str(num_units_inference[i]) +'_'
     file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+ '-' + str(optimizer) + '-' + str(input_dim) + '-' + name_inference +'-'+str(number_out_decoder) +'-'+str(dropout_rate)
             
-    summary = open("results/multivariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver3.csv",'a+')
+    summary = open("results/multivariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver10.csv",'a+')
     summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
     print (time.time()- starttime)
@@ -114,13 +114,13 @@ interval_disk_io = (max_disk_io - min_disk_io)
 interval_disk_space = (max_disk_space - min_disk_space)
 interval_arr = [interval_cpu, interval_mem, interval_disk_io, interval_disk_space]
 
-sliding_encoders = [18]
+sliding_encoders = [30]
 sliding_decoders = [2,3,4,5]
 sliding_inferences = [8,9,10]
-batch_size_arr = [4]
+batch_size_arr = [8]
 input_dim = [len(dataset_original)]
-num_units_LSTM_arr = [[16,4]]
-dropout_rate = [0.9, 0.95]
+num_units_LSTM_arr = [[4],[8]]
+dropout_rate = [0.9,0.95]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
 #                                              - 3 is tanh
@@ -164,10 +164,10 @@ for item in list(ParameterGrid(param_grid)) :
 # Consumer
 if __name__ == '__main__':
 
-    summary = open("results/multivariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver3.csv",'a+')
+    summary = open("results/multivariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver10.csv",'a+')
     summary.write("model,MAE,RMSE\n")
     
-    pool = Pool(10)
+    pool = Pool(12)
     pool.map(train_model, list(queue.queue))
     pool.close()
     pool.join()

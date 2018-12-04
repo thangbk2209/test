@@ -162,8 +162,8 @@ class Model:
         print (self.sliding_encoder)
         print (len(self.original_data))
         tf.reset_default_graph()
-        x1 = tf.placeholder("float",[None, self.sliding_encoder*len(self.original_data)/self.input_dim, self.input_dim])
-        x2 = tf.placeholder("float",shape = (None, self.sliding_decoder*len(self.original_data)/self.input_dim, self.input_dim))
+        x1 = tf.placeholder("float", name="x_encoder",shape = (None, self.sliding_encoder*len(self.original_data)/self.input_dim, self.input_dim))
+        x2 = tf.placeholder("float", name="x_decoder",shape = (None, self.sliding_decoder*len(self.original_data)/self.input_dim, self.input_dim))
         if(self.number_out_decoder == 1):
             print ("=======self.number_out_decoder == 1=============")
             y1 = tf.placeholder("float", [None, self.sliding_decoder])
@@ -200,13 +200,13 @@ class Model:
             prediction1 = outputs_decoder1[:,:,-1]
             prediction2 = outputs_decoder2[:,:,-1]
             loss_encoder_decoder = tf.reduce_mean(tf.square(y11-prediction1) + tf.square(y12-prediction2))
-            optimizer_encoder_decoder = tf.train.AdvamOptimizer(learning_rate = 0.001).minimize(loss_encoder_decoder)
+            optimizer_encoder_decoder =optimizer.minimize(loss_encoder_decoder,name='training_inference_step')
         # out_weights=tf.Variable(tf.random_normal([int(self.sliding_decoder*len(self.original_data)/self.input_dim), self.n_output_encoder_decoder]))
         # out_bias=tf.Variable(tf.random_normal([self.n_output_encoder_decoder]))
         # else:
         #     
-        x3 = tf.placeholder("float",[None, 1, int(self.sliding_inference*len(self.external_feature))])
-        y2 = tf.placeholder("float", [None, self.n_output_inference])
+        x3 = tf.placeholder("float", name="x_inference", shape = (None, 1, int(self.sliding_inference*len(self.external_feature))))
+        y2 = tf.placeholder("float", name="y_inference", shape = (None, self.n_output_inference))
         # input_decoder=tf.unstack(x2 ,self.sliding_decoder/self.time_step,self.time_step)
         
         # prediction = outputs_decoder[:,:,-1]
@@ -405,7 +405,7 @@ class Model:
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
 
-            folder_to_save_result = 'results/multivariate/cpu/5minutes/bnn_multivariate_uber_ver3/'
+            folder_to_save_result = 'results/multivariate/cpu/5minutes/bnn_multivariate_uber_ver10/'
 
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'

@@ -156,8 +156,8 @@ class Model:
         print (self.sliding_encoder)
         print (len(self.original_data))
         tf.reset_default_graph()
-        x1 = tf.placeholder("float",[None, self.sliding_encoder*len(self.original_data)/self.input_dim, self.input_dim])
-        x2 = tf.placeholder("float",shape = (None, self.sliding_decoder*len(self.original_data)/self.input_dim, self.input_dim))
+        x1 = tf.placeholder("float", name = "x_encoder",[None, self.sliding_encoder*len(self.original_data)/self.input_dim, self.input_dim])
+        x2 = tf.placeholder("float", name = "x_decoder",shape = (None, self.sliding_decoder*len(self.original_data)/self.input_dim, self.input_dim))
         if(self.number_out_decoder == 1):
             y1 = tf.placeholder("float", [None, self.sliding_decoder])
             with tf.variable_scope('encoder'):
@@ -196,8 +196,8 @@ class Model:
         # out_bias=tf.Variable(tf.random_normal([self.n_output_encoder_decoder]))
         # else:
         #     
-        x3 = tf.placeholder("float",[None, 1, int(self.sliding_inference*len(self.external_feature))])
-        y2 = tf.placeholder("float", [None, self.n_output_inference])
+        x3 = tf.placeholder("float", name = "x_inference",[None, 1, int(self.sliding_inference*len(self.external_feature))])
+        y2 = tf.placeholder("float", name = "y_inference", [None, self.n_output_inference])
         # input_decoder=tf.unstack(x2 ,self.sliding_decoder/self.time_step,self.time_step)
         
         # prediction = outputs_decoder[:,:,-1]
