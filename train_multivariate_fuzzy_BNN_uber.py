@@ -62,7 +62,7 @@ def train_model(item):
             name_inference += str(num_units_inference[i]) +'_'
     file_name = str(sliding_encoder) + '-' + str(sliding_decoder) + '-' + str(sliding_inference) + '-' + str(batch_size) + '-' + name_LSTM + '-' + str(activation)+ '-' + str(optimizer) + '-' + str(input_dim) + '-' + name_inference +'-'+str(number_out_decoder) +'-'+str(dropout_rate)
             
-    summary = open("results/multivariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver10.csv",'a+')
+    summary = open("results/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver7.csv",'a+')
     summary.write(file_name +','+str(error[0])+','+str(error[1])+'\n')
     print (error)
     print (time.time()- starttime)
@@ -87,9 +87,9 @@ fuzzied_cpu = fuzzy_df['cpu_rate'].values.reshape(-1,1)
 fuzzied_mem = fuzzy_df['mem_usage'].values.reshape(-1,1)
 fuzzied_disk_io_time = fuzzy_df['disk_io_time'].values.reshape(-1,1)
 fuzzied_disk_space = fuzzy_df['disk_space'].values.reshape(-1,1)
-dataset_original = [cpu,mem]
-prediction_data = [cpu]
-external_feature = [cpu]
+dataset_original = [mem,cpu]
+prediction_data = [mem]
+external_feature = [mem]
 
 train_size = int(0.6 * len(cpu))
 # print (train_size)
@@ -119,7 +119,7 @@ sliding_decoders = [2,3,4,5]
 sliding_inferences = [8,9,10]
 batch_size_arr = [8]
 input_dim = [len(dataset_original)]
-num_units_LSTM_arr = [[4],[8]]
+num_units_LSTM_arr = [[32,4]]
 dropout_rate = [0.9,0.95]
 # activation for inference and decoder layer : - 1 is sigmoid
 #                                              - 2 is relu
@@ -164,7 +164,7 @@ for item in list(ParameterGrid(param_grid)) :
 # Consumer
 if __name__ == '__main__':
 
-    summary = open("results/multivariate/cpu/5minutes/evaluate_multivariate_bnn_uber_ver10.csv",'a+')
+    summary = open("results/multivariate/mem/5minutes/evaluate_multivariate_bnn_uber_ver7.csv",'a+')
     summary.write("model,MAE,RMSE\n")
     
     pool = Pool(12)

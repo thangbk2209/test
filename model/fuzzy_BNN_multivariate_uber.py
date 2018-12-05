@@ -405,7 +405,7 @@ class Model:
                 else:
                     name_inference += str(self.num_units_inference[i]) +'_'
 
-            folder_to_save_result = 'results/multivariate/cpu/5minutes/bnn_multivariate_uber_ver10/'
+            folder_to_save_result = 'results/multivariate/mem/5minutes/bnn_multivariate_uber_ver7/'
 
             file_name = str(self.sliding_encoder) + '-' + str(self.sliding_decoder) + '-' + str(self.sliding_inference) + '-' + str(self.batch_size) + '-' + name_LSTM + '-' + str(self.activation)+ '-' + str(self.optimizer) + '-' + str(self.input_dim) + '-' + name_inference +'-'+str(self.number_out_decoder) +'-'+str(self.dropout_rate)
             history_file = folder_to_save_result + 'history/' + file_name + '.png'
